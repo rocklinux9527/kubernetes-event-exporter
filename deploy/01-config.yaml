@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: event-exporter-cfg
   namespace: monitoring
+---
 data:
   config.yaml: |
     logLevel: error
@@ -14,3 +15,27 @@ data:
     receivers:
       - name: "dump"
         stdout: {}
+        
+---
+apiVersion: v1
+data:
+  config.yaml: |
+    logLevel: error
+    logFormat: json
+    route:
+      routes:
+        - match:
+            - receiver: "dump"
+    receivers:
+      - name: "dump"
+        elasticsearch:
+          hosts:
+            - http://10.100.59.78:9200
+          index: kube-events
+          indexFormat: "kube-events-{2006-01-02}"
+          useEventID: false
+          deDot: true
+kind: ConfigMap
+metadata:
+  name: event-exporter-cfg
+  namespace: monitoring
